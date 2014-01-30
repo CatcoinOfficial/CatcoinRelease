@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = catcoin-qt
 macx:TARGET = "Catcoin-Qt"
-VERSION = 0.8.9.0
+VERSION = 0.8.9
 INCLUDEPATH += src src/json src/qt
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
