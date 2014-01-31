@@ -1,25 +1,27 @@
 Catcoin integration/staging tree
 ================================
 
-http://www.catcoin.pw
+http://www.catcoins.org
 
 Copyright (c) 2009-2013 Bitcoin Developers
 Copyright (c) 2011-2013 Litecoin Developers
 Copyright (c) 2013-2014 Catcoin Developers
+See the file CREDITS for further info on the cats responsible for this
 
 What is Catcoin?
 ----------------
 
-Catcoin is a cat version of Litecoin using scrypt as a proof-of-work algorithm but using the same
-blockchain parameters as Bitcoin:
+Catcoin is a version of the Litecoin cryptographic currency, using scrypt
+as a proof-of-work algorithm, and using substantially similiar blockchain
+parameters to Bitcoin:
  - 50 coins per block
  - 10 minutes block targets
  - Subsidy halves in 210k blocks
  - 21 million total coins
- - 36 blocks to retarget difficulty
+ - 1 block difficulty adjustment, based on average time of last 36 blocks
 
 For more information, as well as an immediately useable, binary version of
-the Catcoin client sofware, see http://www.catcoin.pw.
+the Catcoin client sofware, see http://www.catcoins.org.
 
 License
 -------
@@ -36,18 +38,14 @@ their feature or bug fix is ready.
 If it is a simple/trivial/non-controversial change, then one of the Catcoin
 development team members simply pulls it.
 
-If it is a *more complicated or potentially controversial* change, then the patch
-submitter will be asked to start a discussion (if they haven't already) on the
-[mailing list](http://sourceforge.net/mailarchive/forum.php?forum_name=bitcoin-development).
+If it is a *more complicated or potentially controversial* change, then the
+patch submitter will be asked to start a discussion (if they haven't already)
+on #catcoin-dev on IRC. (on the [freenode](http://www.freenode.net) network) 
 
 The patch will be accepted if there is broad consensus that it is a good thing.
 Developers should expect to rework and resubmit patches if the code doesn't
 match the project's coding conventions (see `doc/coding.txt`) or are
 controversial.
-
-The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/bitcoin/bitcoin/tags) are created
-regularly to indicate new official, stable release versions of Catcoin.
 
 Testing
 -------
