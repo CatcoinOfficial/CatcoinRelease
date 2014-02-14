@@ -1085,6 +1085,7 @@ static const int64 nIntervalOld = nTargetTimespanOld / nTargetSpacing;
 //
 unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
 {
+#warning "possibly buggy code here until we determine root cause of february forkfest"
     // Testnet has min-difficulty blocks
     // after nTargetSpacing*2 time between blocks:
     if (fTestNet && nTime > nTargetSpacing*2)
@@ -1096,7 +1097,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
     {
         // Maximum 400% adjustment...
         bnResult *= 4;
-        // ... in best-case exactly 4-times-normal target time
+        // ... in best-case exactly 4-times-normal target time 
         if(height < 20290)
             nTime -= nTargetTimespanOld*4;
         else
@@ -2323,7 +2324,10 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
 
         if (bnNewBlock > bnRequired)
         {
-            return state.DoS(100, error("ProcessBlock() : block with too little proof-of-work"));
+            printf("WARN: low proof of work: bnNewBlock: %08x bnRequired: %08x\n",
+				pblock->nBits, bnRequired.GetCompact());
+            //return state.DoS(100, error("ProcessBlock() : block with too little proof-of-work"));
+            return state.DoS(25, error("ProcessBlock() : block with too little proof-of-work"));
         }
     }
 
