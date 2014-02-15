@@ -1083,9 +1083,10 @@ static const int64 nIntervalOld = nTargetTimespanOld / nTargetSpacing;
 // minimum amount of work that could possibly be required nTime after
 // minimum work required was nBase
 //
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
+unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 {
 #warning "possibly buggy code here until we determine root cause of february forkfest"
+
     // Testnet has min-difficulty blocks
     // after nTargetSpacing*2 time between blocks:
     if (fTestNet && nTime > nTargetSpacing*2)
@@ -1095,13 +1096,10 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
     bnResult.SetCompact(nBase);
     while (nTime > 0 && bnResult < bnProofOfWorkLimit)
     {
-        // Maximum 400% adjustment...
-        bnResult *= 4;
-        // ... in best-case exactly 4-times-normal target time 
-        if(height < 20290)
-            nTime -= nTargetTimespanOld*4;
-        else
-            nTime -= nTargetTimespan*4;
+	// should technically be 112/100 * 36 .. ~40
+        bnResult *= 40;
+        // and if we have long blocks, max 40 x, as well
+        nTime -= nTargetTimespan*40;
     }
     if (bnResult > bnProofOfWorkLimit)
         bnResult = bnProofOfWorkLimit;
@@ -2320,13 +2318,15 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         CBigNum bnNewBlock;
         bnNewBlock.SetCompact(pblock->nBits);
         CBigNum bnRequired;
-        bnRequired.SetCompact(ComputeMinWork(pcheckpoint->nBits, deltaTime, pcheckpoint->nHeight));
+        bnRequired.SetCompact(ComputeMinWork(pcheckpoint->nBits, deltaTime));
 
         if (bnNewBlock > bnRequired)
         {
             printf("WARN: low proof of work: bnNewBlock: %08x bnRequired: %08x\n",
 				pblock->nBits, bnRequired.GetCompact());
             //return state.DoS(100, error("ProcessBlock() : block with too little proof-of-work"));
+            // Don't throw them under the bus yet, at least until we get more nodes upgraded
+            // from Forktackular February -- Troy
             return state.DoS(25, error("ProcessBlock() : block with too little proof-of-work"));
         }
     }
