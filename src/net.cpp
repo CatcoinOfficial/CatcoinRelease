@@ -1192,13 +1192,23 @@ void MapPort(bool)
 // Each pair gives a source name and a seed name.
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
+/*
+  Catcoin policy for getting on this list:
+   1) have a catcoind with port 9933 open
+   2) be avaible for #catcoin-dev people to contact you for debug and testing
+   3) be willing to take a haircut on generates if we determine on irc and on
+      (a future) mailing list that we need to do it to fix the network
+ */
 static const char *strMainNetDNSSeed[][2] = {
-    {"catcoin.pw", "seed.catcoin.pw"},
+    {"catstat.info", "seed.catstat.info"},
+    {"catcoinwallets.com", "seed.catcoinwallets.com"},
+    {"geekhash.org", "cat.geekhash.org"},
     {NULL, NULL}
 };
 
 static const char *strTestNetDNSSeed[][2] = {
-    {"catcoin.pw", "testnet-seed.catcoin.pw"},
+    {"catstat.info", "testnet-seed.catstat.info"},
+    {"catcoinwallets.com", "seed.catcoinwallets.com"},
     {NULL, NULL}
 };
 
