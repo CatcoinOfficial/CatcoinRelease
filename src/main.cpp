@@ -1108,7 +1108,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 }
 
 static int fork3Block = 27260; // FIXME move to top...
-static int fork4Block = 27689; // Acceptblock needs this
+static int fork4Block = 27680; // Acceptblock needs this
 
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
@@ -1266,12 +1266,12 @@ If New diff < 0, then set static value of 0.0001 or so.
 		for(i=0;i<7;i++) pindexFirst = pindexFirst->pprev; // Set 4th previous block for 8 block filtering 
 		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
 		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
-		if(pindexLast->nHeight >= fork4Block || fTestNet){
-			// Sanity check, die instead of divide by zero
+		if(pindexLast->nHeight > fork4Block || fTestNet){
 			if (nMinSpacing > nActualTimespan){
-				printf("FATAL: PID nActualTimespan %"PRI64d" too small!\n", nActualTimespan);
+				printf("WARNING: SANITY CHECK FAILED: PID nActualTimespan %"PRI64d" too small! increased to %"PRI64d"\n",
+					nActualTimespan, nMinSpacing );
+				nActualTimespan = nMinSpacing;
 			}
-			assert(nMinSpacing <= nActualTimespan);
 		}
 		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
 		i=0;					// Zero bit-shift counter
