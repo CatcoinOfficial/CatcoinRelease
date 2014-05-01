@@ -1256,38 +1256,43 @@ New Diff = (Current Diff + P Calc + I Calc + D Calc)
 If New diff < 0, then set static value of 0.0001 or so.
 */	
 	
-	 if(pindexLast->nHeight >= fork3Block || fTestNet) // Fork 3 to use a PID routine instead of the other 2 forks 
-	 {
-	 	pindexFirst = pindexLast->pprev; 															// Set previous block
-	 	for(i=0;i<7;i++) pindexFirst = pindexFirst->pprev; 									// Set 4th previous block for 8 block filtering 
-	 	
-	 	nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
-	 	nActualTimespan = nActualTimespan / 8; 													// Calculate average for last 8 blocks
-	 	bnNew.SetCompact(pindexLast->nBits);														// Get current difficulty
-	 	
-	 	i=0;												// Zero bit-shift counter
-	 	while(bnNew>0)									// Loop while bnNew > 0
-	 	{
-	 		i++;											// Increment bit-shift counter
-	 		bnNew = bnNew >> 1;						// shift bnNew lower by 1 bit
-	 		if(i>256) bnNew = 0;						// overflow test, just to make sure that it never stays in this loop
-	 	}
-	 	bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty again
-	 	
+	if(pindexLast->nHeight >= fork3Block || fTestNet) 
+	// Fork 3 to use a PID routine instead of the other 2 forks 
+	{
+		pindexFirst = pindexLast->pprev; 	// Set previous block
+		for(i=0;i<7;i++) pindexFirst = pindexFirst->pprev; // Set 4th previous block for 8 block filtering 
+		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
+		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
+		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
+		i=0;					// Zero bit-shift counter
+		while(bnNew>0)				// Loop while bnNew > 0
+		{
+			i++;				// Increment bit-shift counter
+			bnNew = bnNew >> 1;		// shift bnNew lower by 1 bit
+			if(i>256) bnNew = 0;		// overflow test, just to make sure that it never stays in this loop
+		}
+		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty again
+		
 
-	 	error = nActualTimespan - nTargetSpacing;																			// Calculate the error to be fed into the PID Calculation
-	 	if(error >= -450 && error <= 450) // Slower gains for when the average time is within 2.5 min and 7.5 min 
-	 	{
-	 		pCalc = pGainUp * (double)error;																						// Calculate P ... pGainUp defined at beginning of routine
-	 		iCalc = iGainUp * (double)error * (double)((double)nTargetSpacing / (double)nActualTimespan);	// Calculate I ... iGainUp defined at beginning of routine
-	 		dCalc = dGainUp * ((double)error / (double)nActualTimespan) * iCalc;										// Calculate D ... dGainUp defined at beginning of routine
-	 	}
-	 	else // Faster gains for block averages faster than 2.5 min and greater than 7.5 min 
-	 	{
-	 		pCalc = pGainDn * (double)error;																						// Calculate P ... pGainDn defined at beginning of routine
-	 		iCalc = iGainDn * (double)error * (double)((double)nTargetSpacing / (double)nActualTimespan);	// Calculate I ... iGainDn defined at beginning of routine
-	 		dCalc = dGainDn * ((double)error / (double)nActualTimespan) * iCalc;										// Calculate D ... dGainDn defined at beginning of routine
-	 	}
+		error = nActualTimespan - nTargetSpacing;	// Calculate the error to be fed into the PID Calculation
+		if(error >= -450 && error <= 450) // Slower gains for when the average time is within 2.5 min and 7.5 min 
+		{
+			// Calculate P ... pGainUp defined at beginning of routine
+			pCalc = pGainUp * (double)error;
+			// Calculate I ... iGainUp defined at beginning of routine
+			iCalc = iGainUp * (double)error * (double)((double)nTargetSpacing / (double)nActualTimespan);
+			// Calculate D ... dGainUp defined at beginning of routine
+			dCalc = dGainUp * ((double)error / (double)nActualTimespan) * iCalc;
+		}
+		else // Faster gains for block averages faster than 2.5 min and greater than 7.5 min 
+		{
+			// Calculate P ... pGainDn defined at beginning of routine
+			pCalc = pGainDn * (double)error;
+			// Calculate I ... iGainDn defined at beginning of routine
+			iCalc = iGainDn * (double)error * (double)((double)nTargetSpacing / (double)nActualTimespan);
+			// Calculate D ... dGainDn defined at beginning of routine
+			dCalc = dGainDn * ((double)error / (double)nActualTimespan) * iCalc;
+		}
 
 		if(error > -10 && error < 10)
 		{
@@ -1295,27 +1300,27 @@ If New diff < 0, then set static value of 0.0001 or so.
 			return(bnNew.GetCompact());
 		}	 	
 	 	
-	 	dResult = pCalc + iCalc + dCalc;																						// Sum the PID calculations
+	 	dResult = pCalc + iCalc + dCalc;	// Sum the PID calculations
 	 	
-	 	result = (int64)(dResult * 65536);			// Adjust for scrypt calcuation
-	 	while(result >  8388607) result = result / 2; // Bring the result within max range to avoid overflow condition 
-	 	bResult = result;									// Set the bignum value
-	 	if(i>24) bResult = bResult << (i - 24);	// bit-shift integer value of result to be subtracted from current diff
+		result = (int64)(dResult * 65536);	// Adjust for scrypt calcuation
+		// Bring the result within max range to avoid overflow condition 
+		while(result >  8388607) result = result / 2; 
+		bResult = result;			// Set the bignum value
+		if(i>24) bResult = bResult << (i - 24);	// bit-shift integer value of result to be subtracted from current diff
 
-	 	if(fTestNet) printf("pCalc: %f, iCalc: %f, dCalc: %f, Result: %"PRI64d" (%f)\n", pCalc, iCalc, dCalc, result, dResult); // Only print if testnet to reduce log lag
-	 	if(fTestNet) printf("Actual Time: %"PRI64d", error: %"PRI64d"\n", nActualTimespan, error); 										// Only print if testnet to reduce log lag
-		if(fTestNet) printf("Result: %08x %s\n",bResult.GetCompact(), bResult.getuint256().ToString().c_str()); 						// Only print if testnet to reduce log lag
-	 	if(fTestNet) printf("Before: %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 							// Only print if testnet to reduce log lag
-
-		bnNew = bnNew - bResult; 			// Subtract the result to set the current diff
+		if(fTestNet) printf("pCalc: %f, iCalc: %f, dCalc: %f, Result: %"PRI64d" (%f)\n", pCalc, iCalc, dCalc, result, dResult);
+		if(fTestNet) printf("Actual Time: %"PRI64d", error: %"PRI64d"\n", nActualTimespan, error); 
+		if(fTestNet) printf("Result: %08x %s\n",bResult.GetCompact(), bResult.getuint256().ToString().c_str()); 
+		if(fTestNet) printf("Before: %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 
+		bnNew = bnNew - bResult; 	// Subtract the result to set the current diff
 		
-	   if (bnNew.GetCompact() > 0x1e0fffff) bnNew.SetCompact(0x1e0fffff); // Make sure that diff is not set too low, ever
+		// Make sure that diff is not set too low, ever
+		if (bnNew.GetCompact() > 0x1e0fffff) bnNew.SetCompact(0x1e0fffff);
+		if(fTestNet) printf("After:  %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 
 		
-	 	if(fTestNet) printf("After:  %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 							// Only print if testnet to reduce log lag
-	 	
-	 } // End Fork 3 to use a PID routine instead of the other 2 forks routine
+	} // End Fork 3 to use a PID routine instead of the other 2 forks routine
 	 
-    return bnNew.GetCompact();
+	return bnNew.GetCompact();
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
