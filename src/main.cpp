@@ -1074,6 +1074,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 
 static const int64 nTargetTimespan = 6 * 60 * 60; // 6 hours
 static const int64 nTargetSpacing = 10 * 60;
+static const int64 nMinSpacing = 30; 	// Absolute minimum spacing
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 static const int64 nTargetTimespanOld = 14 * 24 * 60 * 60; // two weeks
@@ -1106,6 +1107,9 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
     return bnResult.GetCompact();
 }
 
+static int fork3Block = 27260; // FIXME move to top...
+static int fork4Block = 27680; // Acceptblock needs this
+
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
     int i;
@@ -1114,7 +1118,6 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
     int64 nIntervalLocal = 0;
     int forkBlock = 20290 - 1;
     int fork2Block = 21346;
-    int fork3Block = 27260; // Need to pick one if this code is to go live
 
 	 // moved variable inits to the top where they belong
 	 
@@ -1256,13 +1259,17 @@ New Diff = (Current Diff + P Calc + I Calc + D Calc)
 If New diff < 0, then set static value of 0.0001 or so.
 */	
 	
-	if(pindexLast->nHeight >= fork3Block || fTestNet) 
+	if(pindexLast->nHeight >= fork3Block || fTestNet)
 	// Fork 3 to use a PID routine instead of the other 2 forks 
 	{
 		pindexFirst = pindexLast->pprev; 	// Set previous block
 		for(i=0;i<7;i++) pindexFirst = pindexFirst->pprev; // Set 4th previous block for 8 block filtering 
 		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
 		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
+		if(pindexLast->nHeight >= fork4Block || fTestNet){
+			printf("PID DBG nActualTimespan %lld\n", nActualTimespan);
+			assert(nMinSpacing < nActualTimespan);// Sanity check, prevents divide by zero
+		}
 		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
 		i=0;					// Zero bit-shift counter
 		while(bnNew>0)				// Loop while bnNew > 0
@@ -2253,7 +2260,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
         return state.DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-    if (GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+    if (GetBlockTime() > GetAdjustedTime() + 15 * 60)
         return state.Invalid(error("CheckBlock() : block timestamp too far in the future"));
 
     // First transaction must be coinbase, the rest must not be
@@ -2318,9 +2325,17 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
         if (nBits != GetNextWorkRequired(pindexPrev, this))
             return state.DoS(100, error("AcceptBlock(height=%d) : incorrect proof of work", nHeight));
 
-        // Check timestamp against prev
-        if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
-            return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
+	if (nHeight > fork4Block){
+            if (GetBlockTime() <= (pindexPrev->GetBlockTime() + nMinSpacing))
+                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%lld) is too soon after prev(%lld)", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
+	} else if (nHeight > fork3Block) {
+            if (GetBlockTime() <= pindexPrev->GetBlockTime() - 30) // allow 30 sec
+                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%lld) is too soon after prev->prev(%lld)", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
+	} else {
+            // Check timestamp against prev
+            if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
+                return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
+	}
 
         // Check that all transactions are finalized
         BOOST_FOREACH(const CTransaction& tx, vtx)
