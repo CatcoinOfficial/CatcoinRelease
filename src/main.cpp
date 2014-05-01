@@ -1267,8 +1267,11 @@ If New diff < 0, then set static value of 0.0001 or so.
 		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
 		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
 		if(pindexLast->nHeight >= fork4Block || fTestNet){
-			printf("FATAL: PID nActualTimespan %"PRI64d" too small!\n", nActualTimespan);
-			assert(nMinSpacing < nActualTimespan);// Sanity check, die instead of divide by zero
+			// Sanity check, die instead of divide by zero
+			if (nMinSpacing > nActualTimespan){
+				printf("FATAL: PID nActualTimespan %"PRI64d" too small!\n", nActualTimespan);
+			}
+			assert(nMinSpacing <= nActualTimespan);
 		}
 		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
 		i=0;					// Zero bit-shift counter
