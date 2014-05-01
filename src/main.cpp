@@ -1108,7 +1108,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 }
 
 static int fork3Block = 27260; // FIXME move to top...
-static int fork4Block = 27680; // Acceptblock needs this
+static int fork4Block = 27689; // Acceptblock needs this
 
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
