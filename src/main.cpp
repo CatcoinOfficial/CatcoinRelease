@@ -1267,8 +1267,8 @@ If New diff < 0, then set static value of 0.0001 or so.
 		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
 		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
 		if(pindexLast->nHeight >= fork4Block || fTestNet){
-			printf("PID DBG nActualTimespan %lld\n", nActualTimespan);
-			assert(nMinSpacing < nActualTimespan);// Sanity check, prevents divide by zero
+			printf("FATAL: PID nActualTimespan %"PRI64d" too small!\n", nActualTimespan);
+			assert(nMinSpacing < nActualTimespan);// Sanity check, die instead of divide by zero
 		}
 		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
 		i=0;					// Zero bit-shift counter
@@ -2327,10 +2327,10 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
 
 	if (nHeight > fork4Block){
             if (GetBlockTime() <= (pindexPrev->GetBlockTime() + nMinSpacing))
-                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%lld) is too soon after prev(%lld)", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
+                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%"PRI64d") is too soon after prev(%"PRI64d")", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
 	} else if (nHeight > fork3Block) {
             if (GetBlockTime() <= pindexPrev->GetBlockTime() - 30) // allow 30 sec
-                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%lld) is too soon after prev->prev(%lld)", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
+                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%"PRI64d") is too soon after prev->prev(%"PRI64d")", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
 	} else {
             // Check timestamp against prev
             if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
