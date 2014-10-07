@@ -1454,7 +1454,7 @@ bool ConnectBestBlock(CValidationState &state) {
 
 void CBlockHeader::UpdateTime(const CBlockIndex* pindexPrev)
 {
-    nTime = max(pindexPrev->GetMedianTimePast()+1, GetAdjustedTime());
+    nTime = max(pindexPrev->GetBlockTime()+nMinSpacing, GetAdjustedTime());
 
     // Updating time can change work required on testnet:
     if (fTestNet)
@@ -2329,7 +2329,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
             return state.DoS(100, error("AcceptBlock(height=%d) : incorrect proof of work", nHeight));
 
 	if (nHeight > fork4Block){
-            if (GetBlockTime() <= (pindexPrev->GetBlockTime() + nMinSpacing))
+            if (GetBlockTime() < (pindexPrev->GetBlockTime() + nMinSpacing))
                 return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%"PRI64d") is too soon after prev(%"PRI64d")", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
 	} else if (nHeight > fork3Block) {
             if (GetBlockTime() <= pindexPrev->GetBlockTime() - 30) // allow 30 sec
