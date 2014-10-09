@@ -1194,20 +1194,19 @@ void MapPort(bool)
 // The second name should resolve to a list of seed addresses.
 /*
   Catcoin policy for getting on this list:
-   1) have a catcoind with port 9933 open
-   2) be avaible for #catcoin-dev people to contact you for debug and testing
-   3) be willing to take a haircut on generates if we determine on irc and on
+   1) Run only official code pulled from CatcoinOfficial/CatcoinRelease  
+   2) have a catcoind with port 9933 open
+   3) be avaible for #catcoin-dev people to contact you for debug and testing
+   4) be willing to lose coins mined if we determine on irc and on
       (a future) mailing list that we need to do it to fix the network
  */
 static const char *strMainNetDNSSeed[][2] = {
-    {"catstat.info", "seed.catstat.info"},
     {"catcoinwallets.com", "seed.catcoinwallets.com"},
     {"geekhash.org", "cat.geekhash.org"},
     {NULL, NULL}
 };
 
 static const char *strTestNetDNSSeed[][2] = {
-    {"catstat.info", "testnet-seed.catstat.info"},
     {"catcoinwallets.com", "seed.catcoinwallets.com"},
     {NULL, NULL}
 };
