@@ -3,9 +3,9 @@ Catcoin integration/staging tree
 
 http://www.catcoins.org
 
-Copyright (c) 2009-2013 Bitcoin Developers
-Copyright (c) 2011-2013 Litecoin Developers
-Copyright (c) 2013-2014 Catcoin Developers
+Copyright (c) 2009-2015 Bitcoin Developers
+Copyright (c) 2011-2015 Litecoin Developers
+Copyright (c) 2013-2015 Catcoin Developers
 See the file CREDITS for further info on the cats responsible for this
 
 What is Catcoin?
@@ -18,7 +18,7 @@ parameters to Bitcoin:
  - 10 minutes block targets
  - Subsidy halves in 210k blocks
  - 21 million total coins
- - 1 block difficulty adjustment, based on average time of last 36 blocks
+ - 1 block difficulty adjustment using multiple methods
 
 For more information, as well as an immediately useable, binary version of
 the Catcoin client sofware, see http://www.catcoins.org.
