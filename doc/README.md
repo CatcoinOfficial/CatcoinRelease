@@ -1,9 +1,9 @@
-Catcoin 0.8.x BETA
+Catcoin 0.9.x BETA
 ====================
 
-Copyright (c) 2009-2013 Bitcoin Developers
-Copyright (c) 2011-2013 Litecoin Developers
-Copyright (c) 2013-2014 Catcoin Developers
+Copyright (c) 2009-2015 Bitcoin Developers
+Copyright (c) 2011-2015 Litecoin Developers
+Copyright (c) 2013-2015 Catcoin Developers
 
 Distributed under the MIT/X11 software license, see the accompanying
 file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -30,9 +30,6 @@ Unpack the files into a directory and run:
 - bin/32/catcoind (headless, 32-bit)
 - bin/64/catcoin-qt (GUI, 64-bit)
 - bin/64/catcoind (headless, 64-bit)
-
-See the documentation at the [Catcoin Wiki](http://litecoin.info)
-for help and more information.
 
 
 Other Pages
