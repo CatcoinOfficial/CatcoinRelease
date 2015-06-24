@@ -1,14 +1,13 @@
 TEMPLATE = app
 TARGET = catcoin-qt
 macx:TARGET = "Catcoin-Qt"
-VERSION = 0.9.2
+VERSION = 0.8.9
 INCLUDEPATH += src src/json src/qt
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
-CONFIG += static
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
@@ -21,15 +20,15 @@ CONFIG += static
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
 # Windows compilation, refer to the link below for detailed instructions
-# http://catcoinwallets.com/win/catcoin_wallet_build_windows.pdf
+# https://bitcointalk.org/index.php?topic=149479.0
 win32 {
-    BOOST_LIB_SUFFIX=-mgw48-mt-s-1_53
-    BOOST_INCLUDE_PATH=C:/deps/boost_1_53_0
-    BOOST_LIB_PATH=C:/deps/boost_1_53_0/stage/lib
-    BDB_INCLUDE_PATH=C:/deps/db-6.0.20.NC/build_unix
-    BDB_LIB_PATH=C:/deps/db-6.0.20.NC/build_unix
-    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1h/include
-    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1h
+    BOOST_LIB_SUFFIX=-mgw48-mt-s-1_54
+    BOOST_INCLUDE_PATH=C:/deps/boost_1_54_0
+    BOOST_LIB_PATH=C:/deps/boost_1_54_0/stage/lib
+    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1e/include
+    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1e
     MINIUPNPC_INCLUDE_PATH=C:/deps/
     MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 }
