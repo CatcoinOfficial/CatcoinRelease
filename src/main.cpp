@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2014 The Catcoin developers
+// Copyright (c) 2013-2015 The Catcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1073,8 +1073,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 }
 
 static const int64 nTargetTimespan = 6 * 60 * 60; // 6 hours
-static const int64 nTargetSpacing = 10 * 60;
-static const int64 nMinSpacing = 30; 	// Absolute minimum spacing
+static const int64 nTargetSpacing = 10 * 60;  // 10 minute block time target
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 static const int64 nTargetTimespanOld = 14 * 24 * 60 * 60; // two weeks
@@ -1084,23 +1083,25 @@ static const int64 nIntervalOld = nTargetTimespanOld / nTargetSpacing;
 // minimum amount of work that could possibly be required nTime after
 // minimum work required was nBase
 //
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
+unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
 {
-//#warning "possibly buggy code here until we determine root cause of february forkfest"
 
     // Testnet has min-difficulty blocks
     // after nTargetSpacing*2 time between blocks:
-    if (fTestNet && nTime > nTargetSpacing*2)
-        return bnProofOfWorkLimit.GetCompact();
+    //if (fTestNet && nTime > nTargetSpacing*2)
+    //    return bnProofOfWorkLimit.GetCompact();
 
     CBigNum bnResult;
     bnResult.SetCompact(nBase);
     while (nTime > 0 && bnResult < bnProofOfWorkLimit)
     {
-	// should technically be 112/100 * 36 .. ~40
-        bnResult *= 40;
-        // and if we have long blocks, max 40 x, as well
-        nTime -= nTargetTimespan*40;
+	 // Maximum 400% adjustment...
+         bnResult *= 4;
+         // ... in best-case exactly 4-times-normal target time 
+         if(height < 20290)
+             nTime -= nTargetTimespanOld*4;
+         else
+             nTime -= nTargetTimespan*4;
     }
     if (bnResult > bnProofOfWorkLimit)
         bnResult = bnProofOfWorkLimit;
@@ -1108,16 +1109,18 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 }
 
 static int fork3Block = 27260; // FIXME move to top...
-static int fork4Block = 27680; // Acceptblock needs this
+static int fork4Block = 27680; // Acceptblock needs this  
+static int fork5Block = 999999; // Activate Digishield
 
-unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+unsigned int static GetNextWorkRequired_PID(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
-    int i;
+    unsigned int i;
 
     int64 nTargetTimespanLocal = 0;
     int64 nIntervalLocal = 0;
     int forkBlock = 20290 - 1;
     int fork2Block = 21346;
+	
 
 	 // moved variable inits to the top where they belong
 	 
@@ -1266,13 +1269,13 @@ If New diff < 0, then set static value of 0.0001 or so.
 		for(i=0;i<7;i++) pindexFirst = pindexFirst->pprev; // Set 4th previous block for 8 block filtering 
 		nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime(); 	// Get last X blocks time
 		nActualTimespan = nActualTimespan / 8; 	// Calculate average for last 8 blocks
-		if(pindexLast->nHeight > fork4Block || fTestNet){
-			if (nMinSpacing > nActualTimespan){
-				printf("WARNING: SANITY CHECK FAILED: PID nActualTimespan %"PRI64d" too small! increased to %"PRI64d"\n",
-					nActualTimespan, nMinSpacing );
-				nActualTimespan = nMinSpacing;
-			}
-		}
+//		if(pindexLast->nHeight > fork4Block || fTestNet){
+//			if (nMinSpacing > nActualTimespan){
+//				printf("WARNING: SANITY CHECK FAILED: PID nActualTimespan %"PRI64d" too small! increased to %"PRI64d"\n",
+//					nActualTimespan, nMinSpacing );
+//				nActualTimespan = nMinSpacing;
+//			}
+//		}
 		bnNew.SetCompact(pindexLast->nBits);	// Get current difficulty
 		i=0;					// Zero bit-shift counter
 		while(bnNew>0)				// Loop while bnNew > 0
@@ -1332,6 +1335,61 @@ If New diff < 0, then set static value of 0.0001 or so.
 	 
 	return bnNew.GetCompact();
 }
+
+unsigned int static GetNextWorkRequired_DIGI(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+{
+	// Digi algorithm should never be used until at least 2 blocks are mined.
+	// Contains code by RealSolid & WDC
+	// Cleaned up for use in Guldencoin by GeertJohan (dead code removal since Guldencoin retargets every block)
+	// retarget timespan is set to a single block spacing because there is a retarget every block
+    int64 retargetTimespan = nTargetSpacing;
+
+    // get previous block
+    const CBlockIndex* pindexPrev = pindexLast->pprev;
+    assert(pindexPrev);
+
+    // calculate actual timestpan between last block and previous block
+    int64 nActualTimespan = pindexLast->GetBlockTime() - pindexPrev->GetBlockTime();
+    printf("Digishield retarget\n");
+    printf("nActualTimespan = %"PRI64d" before bounds\n", nActualTimespan);
+
+    // limit difficulty changes between 50% and 125% (human view)
+    if (nActualTimespan < (retargetTimespan - (retargetTimespan/4)) ) nActualTimespan = (retargetTimespan - (retargetTimespan/4));
+    if (nActualTimespan > (retargetTimespan + (retargetTimespan/2)) ) nActualTimespan = (retargetTimespan + (retargetTimespan/2));
+
+    // calculate new difficulty
+    CBigNum bnNew;
+    bnNew.SetCompact(pindexLast->nBits);
+    bnNew *= nActualTimespan;
+    bnNew /= retargetTimespan;
+
+    // difficulty should never go below (human view) the starting difficulty
+    if (bnNew > bnProofOfWorkLimit)
+        bnNew = bnProofOfWorkLimit;
+
+    /// debug print
+    printf("nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n" , retargetTimespan, nActualTimespan);
+    printf("Before: %08x %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+    printf("After: %08x %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+
+    // return compact (uint) difficulty
+	return bnNew.GetCompact();
+}
+
+unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+{
+	int DiffMode = 1;
+	if(fTestNet){
+		if(pindexLast->nHeight > 0) {DiffMode = 2;}}
+	else {
+		if(pindexLast->nHeight >= fork5Block){DiffMode = 2;}
+		else if (pindexLast->nHeight >= fork3Block){DiffMode = 1;}
+		}
+	if (DiffMode == 1) { return GetNextWorkRequired_PID(pindexLast, pblock); }
+	else if (DiffMode == 20) { return GetNextWorkRequired_DIGI(pindexLast, pblock); }
+	return GetNextWorkRequired_DIGI(pindexLast, pblock);
+}
+
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
 {
@@ -2327,19 +2385,11 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
         // Check proof of work
         if (nBits != GetNextWorkRequired(pindexPrev, this))
             return state.DoS(100, error("AcceptBlock(height=%d) : incorrect proof of work", nHeight));
-
-	if (nHeight > fork4Block){
-            if (GetBlockTime() <= (pindexPrev->GetBlockTime() + nMinSpacing))
-                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%"PRI64d") is too soon after prev(%"PRI64d")", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
-	} else if (nHeight > fork3Block) {
-            if (GetBlockTime() <= pindexPrev->GetBlockTime() - 30) // allow 30 sec
-                return state.Invalid(error("AcceptBlock(height=%d) : block's timestamp (%"PRI64d") is too soon after prev->prev(%"PRI64d")", nHeight, GetBlockTime(), pindexPrev->GetBlockTime()));
-	} else {
-            // Check timestamp against prev
-            if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
-                return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
-	}
-
+	
+        // Check timestamp against prev
+        if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
+           return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
+	
         // Check that all transactions are finalized
         BOOST_FOREACH(const CTransaction& tx, vtx)
             if (!tx.IsFinal(nHeight, GetBlockTime()))
@@ -2410,8 +2460,6 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
 
 bool CBlockIndex::IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned int nRequired, unsigned int nToCheck)
 {
-    // Catcoin: temporarily disable v2 block lockin until we are ready for v2 transition
-    return false;
     unsigned int nFound = 0;
     for (unsigned int i = 0; i < nToCheck && nFound < nRequired && pstart != NULL; i++)
     {
@@ -2447,16 +2495,13 @@ bool ProcessBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, CDiskBl
         CBigNum bnNewBlock;
         bnNewBlock.SetCompact(pblock->nBits);
         CBigNum bnRequired;
-        bnRequired.SetCompact(ComputeMinWork(pcheckpoint->nBits, deltaTime));
+        bnRequired.SetCompact(ComputeMinWork(pcheckpoint->nBits, deltaTime, pcheckpoint->nHeight));
 
         if (bnNewBlock > bnRequired)
         {
             printf("WARN: low proof of work: bnNewBlock: %08x bnRequired: %08x\n",
 				pblock->nBits, bnRequired.GetCompact());
-            //return state.DoS(100, error("ProcessBlock() : block with too little proof-of-work"));
-            // Don't throw them under the bus yet, at least until we get more nodes upgraded
-            // from Forktackular February -- Troy
-            return state.DoS(25, error("ProcessBlock() : block with too little proof-of-work"));
+            return state.DoS(100, error("ProcessBlock() : block with too little proof-of-work"));
         }
     }
 
