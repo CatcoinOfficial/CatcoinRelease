@@ -1110,7 +1110,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime, int height)
 
 static int fork3Block = 27260; // FIXME move to top...
 //static int fork4Block = 27680; // Acceptblock needs this ********** Acceptblock does NOT require this any more *************  
-static int fork4Block = 999999; //   
+static int fork4Block = 46331; //   
 //static int fork5Block = 999999; // Activate Digishield
 
 unsigned int static GetNextWorkRequired_PID(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
