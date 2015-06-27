@@ -1129,7 +1129,7 @@ unsigned int static GetNextWorkRequired_PID(const CBlockIndex* pindexLast, const
     int64 nActualTimespan;
     int64 lowLimit; 
     int64 highLimit;
-    int blockstogoback = nIntervalLocal-1;
+    unsigned int blockstogoback = nIntervalLocal; // was -1 
     CBigNum bnNew;
     const CBlockIndex* pindexFirst = pindexLast;
 
@@ -1217,9 +1217,13 @@ unsigned int static GetNextWorkRequired_PID(const CBlockIndex* pindexLast, const
         blockstogoback = nIntervalLocal;
 
     // Go back by what we want to be 14 days worth of blocks
-    for (i = 0; pindexFirst && i < blockstogoback; i++)
-        pindexFirst = pindexFirst->pprev;
-    assert(pindexFirst);
+    printf("Blocks to go back: %d\n", blockstogoback);
+    if(blockstogoback > 0)
+    {
+    	for (i = 0; pindexFirst && i < blockstogoback; i++)
+        	pindexFirst = pindexFirst->pprev;
+    	assert(pindexFirst);
+    }
 
     // Limit adjustment step
     int numerator = 4;
