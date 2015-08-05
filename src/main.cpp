@@ -1326,10 +1326,10 @@ If New diff < 0, then set static value of 0.0001 or so.
 		bResult = result;			// Set the bignum value
 		if(i>24) bResult = bResult << (i - 24);	// bit-shift integer value of result to be subtracted from current diff
 
-		if(fTestNet) printf("pCalc: %f, iCalc: %f, dCalc: %f, Result: %"PRI64d" (%f)\n", pCalc, iCalc, dCalc, result, dResult);
-		if(fTestNet) printf("Actual Time: %"PRI64d", error: %"PRI64d"\n", nActualTimespan, error); 
-		if(fTestNet) printf("Result: %08x %s\n",bResult.GetCompact(), bResult.getuint256().ToString().c_str()); 
-		if(fTestNet) printf("Before: %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 
+		printf("pCalc: %f, iCalc: %f, dCalc: %f, Result: %"PRI64d" (%f)\n", pCalc, iCalc, dCalc, result, dResult);
+		printf("Actual Time: %"PRI64d", error: %"PRI64d"\n", nActualTimespan, error); 
+		printf("Result: %08x %s\n",bResult.GetCompact(), bResult.getuint256().ToString().c_str()); 
+		printf("Before: %08x %s\n",bnNew.GetCompact(), bnNew.getuint256().ToString().c_str()); 
 		bnNew = bnNew - bResult; 	// Subtract the result to set the current diff
 		
 		// Make sure that diff is not set too low, ever
