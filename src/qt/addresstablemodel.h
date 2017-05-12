@@ -1,6 +1,8 @@
 #ifndef ADDRESSTABLEMODEL_H
 #define ADDRESSTABLEMODEL_H
 
+#include "key.h"
+
 #include <QAbstractTableModel>
 #include <QStringList>
 
@@ -68,6 +70,10 @@ public:
     int lookupAddress(const QString &address) const;
 
     EditStatus getEditStatus() const { return editStatus; }
+
+    CPubKey getRawPubKey();
+    QString getRawPubKeyString();
+    void saveReceiveScript(CScript script, CScriptID scriptID, QString label);
 
 private:
     WalletModel *walletModel;

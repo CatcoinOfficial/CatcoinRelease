@@ -5,6 +5,7 @@
 #include "optionsmodel.h"
 #include "bitcoingui.h"
 #include "editaddressdialog.h"
+#include "askmultisigdialog.h"
 #include "csvmodelwriter.h"
 #include "guiutil.h"
 
@@ -30,6 +31,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 #ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
     ui->newAddress->setIcon(QIcon());
     ui->copyAddress->setIcon(QIcon());
+    ui->multisigButton->setIcon(QIcon());
     ui->deleteAddress->setIcon(QIcon());
     ui->verifyMessage->setIcon(QIcon());
     ui->signMessage->setIcon(QIcon());
@@ -39,6 +41,8 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 #ifndef USE_QRCODE
     ui->showQRCode->setVisible(false);
 #endif
+
+    ui->multisigButton->setVisible(false);
 
     switch(mode)
     {
@@ -63,6 +67,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
         ui->labelExplanation->setText(tr("These are your Catcoin addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you."));
         ui->deleteAddress->setVisible(false);
         ui->signMessage->setVisible(true);
+	ui->multisigButton->setVisible(true);
         break;
     }
 
@@ -242,6 +247,18 @@ void AddressBookPage::on_newAddress_clicked()
     if(dlg.exec())
     {
         newAddressToSelect = dlg.getAddress();
+    }
+}
+
+void AddressBookPage::on_multisigButton_clicked()
+{
+    AskMultisigDialog dlg(this);
+    dlg.setModel(model);
+    if(dlg.exec())
+    {
+        QString address = dlg.generateAddress();
+        if(address.isEmpty()) return; /* empty address = dialog's displayed error message */
+        newAddressToSelect = address;
     }
 }
 
