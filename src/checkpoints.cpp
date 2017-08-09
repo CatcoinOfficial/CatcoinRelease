@@ -60,15 +60,30 @@ namespace Checkpoints
 		(42000, uint256("0x4a538c3557ab865d74327e38837b5aac63aaebdc4718c2ee7b8101bcdd241eb6"))
 		(43000, uint256("0xd2428f19de225b56853090fd548d1d7dd2d3d180b989c785eddb615e60f94209"))
 		(44000, uint256("0x587b814e0a113eaf52b94e4920362f4c076d7dc942a4f8c5c4900f2d94adbc26"))
+		(44225, uint256("0x324baa0cc239091a60c61af8a332584c02f7c7a11bc07286a4cd6c136310968d"))
+		(44227, uint256("0xf8e16629c65f9746deed08631d3e223a9a1d88947c6b41c2107e04b35782726d"))
+		(44500, uint256("0x0bc1f9a00a53d9bc88999b2596377bf135ab1f293b886d32a06628abbd2e4d14"))
+		(45000, uint256("0x47f0d282919bfd3d9901ac8bf38bb41947517e2c7f80ad6ec8f9a8f09243b7dd"))
+		(45500, uint256("0xec9ba2336ab78ad947ccdd2cbe2308a112aabf5379f0cd04cbd224d6e3845714"))
+		(46000, uint256("0x2a6410328fdb9800565c49c0eda849e69dc5a414adab2ff73d0aec9dbf0e2458"))
+		(46500, uint256("0x96cc990f69f8005d31e09f55455ab28b5a09c70bb89b8c6080b48a3bcc1a9342"))
+		(47000, uint256("0x197bd9b1a38262ea8693fd1c0d68e9fdd3cc3cec713d4de0b53fcb4ff70d11fd"))
+		(47500, uint256("0xb5618edac7edf58e50409c50802be5e3b99a582f369438d53b7d55e9b334b1b4"))
+		(48000, uint256("0xc183240a079a0f05a1ecf9049b6805e9044f9a46d08387208f598600015b8a5e"))
+		(48500, uint256("0x0f86070e2a86a4a9480b0adfcc27cfe05dad7e1feb08f98d997b5f9b26351a66"))
+		(50000, uint256("0x21803a5005a2637590ecfc401193487bd09b41395c20c31ed27e4f6916295c87"))
+		(75000, uint256("0x5607029768611e1e29294cd5987845497c2c681ee2917311ec8cf3b65e61e1c8"))
+		(100000,uint256("0x956ca160d703130bce1422ce407eac53064565bfd357fc8ac73e1a7dda9d5764"))
+		(116828,uint256("0x750e549a03bcc7f582c7857c162cde7cfbeb6de91cccaf794cbe6337518d6c4c"))
 //		(23000, uint256("0x"))
 
 		;
 	static const CCheckpointData data = {
 		&mapCheckpoints,
-		1434870875, // * UNIX timestamp of last checkpoint block
-		1434870875,		// * total number of transactions between genesis and last checkpoint
+		1502242527, // * UNIX timestamp of last checkpoint block
+		245139,		// * total number of transactions between genesis and last checkpoint
 					//	 (the tx=... number in the SetBestChain debug.log lines)
-		10.0		// * estimated number of transactions per day after checkpoint
+		200.0		// * estimated number of transactions per day after checkpoint
 	};
 
 	static MapCheckpoints mapCheckpointsTestnet = 

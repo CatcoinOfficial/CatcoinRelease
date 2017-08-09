@@ -2348,7 +2348,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
         return state.DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-    if (GetBlockTime() > GetAdjustedTime() + 15 * 60)
+    if (GetBlockTime() > GetAdjustedTime() + 15 * 60) // Might change to 5 min time skew
         return state.Invalid(error("CheckBlock() : block timestamp too far in the future"));
 
     // First transaction must be coinbase, the rest must not be
@@ -2414,8 +2414,21 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
             return state.DoS(100, error("AcceptBlock(height=%d) : incorrect proof of work", nHeight));
 	
         // Check timestamp against prev
-        if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
+        printf("New Block time: %lld\n", GetBlockTime());
+        printf("Previous Block: %lld\n", pindexPrev->GetBlockTime());
+        printf("Difference:     %lld Seconds\n", GetBlockTime() - pindexPrev->GetBlockTime());
+        if(GetBlockTime() > 1504224000) //Sep 1, 2017 00:00:00 GMT
+        {
+        	  if (GetBlockTime() <= pindexPrev->GetBlockTime())
            return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
+        }
+        else
+        {
+        	  if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
+           return state.Invalid(error("AcceptBlock() : block's timestamp is too early"));
+        }
+        
+        
 	
         // Check that all transactions are finalized
         BOOST_FOREACH(const CTransaction& tx, vtx)
@@ -3807,7 +3820,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             vWorkQueue.push_back(inv.hash);
             vEraseQueue.push_back(inv.hash);
 
-            printf("AcceptToMemoryPool: %s %s : accepted %s (poolsz %"PRIszu")\n",
+            printf("AcceptToMemoryPool from: %s %s : accepted %s (poolsz %"PRIszu")\n",
                 pfrom->addr.ToString().c_str(), pfrom->cleanSubVer.c_str(),
                 tx.GetHash().ToString().c_str(),
                 mempool.mapTx.size());
