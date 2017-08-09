@@ -26,10 +26,10 @@ win32 {
     BOOST_LIB_SUFFIX=-mgw48-mt-s-1_53
     BOOST_INCLUDE_PATH=C:/deps/boost_1_53_0
     BOOST_LIB_PATH=C:/deps/boost_1_53_0/stage/lib
-    BDB_INCLUDE_PATH=C:/deps/db-6.0.20.NC/build_unix
-    BDB_LIB_PATH=C:/deps/db-6.0.20.NC/build_unix
-    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1h/include
-    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1h
+    BDB_INCLUDE_PATH=C:/deps/db-6.0.35.NC/build_unix
+    BDB_LIB_PATH=C:/deps/db-6.0.35.NC/build_unix
+    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2g/include
+    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2g
     MINIUPNPC_INCLUDE_PATH=C:/deps/
     MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 }
@@ -64,7 +64,7 @@ QMAKE_CXXFLAGS *= -D_FORTIFY_SOURCE=2
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
-win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
+win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
 # i686-w64-mingw32
 win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++
 
