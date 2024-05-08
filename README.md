@@ -1,7 +1,7 @@
 Catcoin integration/staging tree
 ================================
 
-http://www.catcoins.org
+
 
 Copyright (c) 2009-2015 Bitcoin Developers
 Copyright (c) 2011-2015 Litecoin Developers
@@ -21,7 +21,7 @@ parameters to Bitcoin:
  - 1 block difficulty adjustment using multiple methods
 
 For more information, as well as an immediately useable, binary version of
-the Catcoin client sofware, see http://www.catcoins.org.
+the Catcoin client sofware
 
 License
 -------
